@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.size.Scale
 import com.parizek.myapplication.R
 import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon
 import com.parizek.myapplication.ui.theme.almostWhite
@@ -185,129 +186,33 @@ fun PokemonDetailScreen(
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(0.3f))
+            DetailCard(
+                cardLocation = cardLocation,
+                state = state,
+                onClick = { viewModel.updateCurrentId(it) },
+                modifier = Modifier
+                    .weight(0.7f)
+            )
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.height(140.dp))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(state.pokemon?.sprite)
+                    .scale(Scale.FIT)
                     .build(),
                 contentDescription = null,
+                alignment = Alignment.BottomCenter,
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(250.dp)
                     .offset(imageLocation.x.dp, imageLocation.y.dp)
             )
-            Card(
-                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .offset(cardLocation.x.dp, cardLocation.y.dp)
-                    .background(
-                        color = Color.Transparent,
-                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-                    ),
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = "Base Stats",
-                        color = Color.Black,
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(state.pokemon?.stats ?: emptyList()) { stats ->
-
-                            var statBarLoading by remember { mutableStateOf(false) }
-                            val statValue by animateDpAsState(
-                                targetValue = (if (statBarLoading) stats.first.dp else 0.dp),
-                                animationSpec = tween(800, 1000, FastOutSlowInEasing)
-                            )
-
-                            LaunchedEffect(key1 = true) {
-                                statBarLoading = true
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = stats.second,
-                                    color = Color.Black,
-                                    modifier = Modifier.weight(0.2f)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = stats.first.toString(),
-                                    color = Color.Black,
-                                    modifier = Modifier.weight(0.2f)
-                                )
-                                Box(
-                                    contentAlignment = Alignment.CenterStart,
-                                    modifier = Modifier
-                                        .weight(0.8f)
-                                        .padding(8.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(10.dp)
-                                            .background(
-                                                color = statBase,
-                                                shape = RoundedCornerShape(100)
-                                            )
-                                    ) {}
-                                    Row(
-                                        modifier = Modifier
-                                            .width(statValue)
-                                            .height(10.dp)
-                                            .background(
-                                                color = statActive,
-                                                shape = RoundedCornerShape(100)
-                                            )
-                                    ) {}
-                                }
-                            }
-                        }
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp)
-                    ) {
-                        Button(
-                            modifier = Modifier
-                                .weight(0.5f),
-                            onClick = {
-                                if (state.pokemon?.id!! != 1) {
-                                    viewModel.updateCurrentId(-1)
-                                }
-                            }
-                        ) {
-                            Text(text = "Previous")
-                        }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Button(
-                            modifier = Modifier
-                                .weight(0.5f),
-                            onClick = {
-                                if (state.pokemon?.id!! != 151) {
-                                    viewModel.updateCurrentId(1)
-                                }
-                            }
-                        ) {
-                            Text(text = "Next")
-                        }
-                    }
-                }
-            }
         }
     }
 }
