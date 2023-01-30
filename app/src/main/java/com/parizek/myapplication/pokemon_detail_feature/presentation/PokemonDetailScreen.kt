@@ -1,7 +1,10 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
+import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateOffsetAsState
@@ -60,11 +63,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PokemonDetailScreen(
-    state: PokemonDetailState,
     viewModel: PokemonDetailViewModel
 ) {
 
-    var currentId by remember { mutableStateOf(state.pokemon?.id) }
+    val state = viewModel.state
 
     val currentRotation by remember { mutableStateOf(0f) }
 
@@ -86,6 +88,14 @@ fun PokemonDetailScreen(
         targetValue = if (isContentVisible) Offset(0F, 0F) else Offset(0f, -500f),
         animationSpec = tween(1500, easing = FastOutSlowInEasing)
     )
+    val darkBackgroundColor by animateColorAsState(
+        targetValue = state.pokemon?.colors?.last() ?: Color.DarkGray,
+        animationSpec = tween(1000, 0, LinearEasing)
+    )
+    val lightBackgroundColor by animateColorAsState(
+        targetValue = state.pokemon?.colors?.first() ?: Color.LightGray,
+        animationSpec = tween(1000, 0, LinearEasing)
+    )
 
     LaunchedEffect(key1 = true) {
         rotation.animateTo(
@@ -96,10 +106,11 @@ fun PokemonDetailScreen(
             )
         )
     }
-    LaunchedEffect(key1 = currentId) {
+
+    LaunchedEffect(key1 = state.currentId) {
         isContentVisible = false
         delay(800)
-        viewModel.getPokemonDetail(currentId.toString())
+        viewModel.getPokemonDetail(state.currentId.toString())
         isContentVisible = true
     }
 
@@ -107,7 +118,7 @@ fun PokemonDetailScreen(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = state.pokemon?.colors?.last() ?: grassDark)
+            .background(color = darkBackgroundColor)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,7 +129,7 @@ fun PokemonDetailScreen(
             Image(
                 painter = painterResource(id = R.drawable.pokeball_png),
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(state.pokemon?.colors?.first() ?: grassLight),
+                colorFilter = ColorFilter.tint(lightBackgroundColor),
                 modifier = Modifier
                     .rotate(rotation.value)
                     .size(250.dp)
@@ -276,7 +287,7 @@ fun PokemonDetailScreen(
                                 .weight(0.5f),
                             onClick = {
                                 if (state.pokemon?.id!! != 1) {
-                                    currentId = state.pokemon.id - 1
+                                    viewModel.updateCurrentId(-1)
                                 }
                             }
                         ) {
@@ -288,7 +299,7 @@ fun PokemonDetailScreen(
                                 .weight(0.5f),
                             onClick = {
                                 if (state.pokemon?.id!! != 151) {
-                                    currentId = state.pokemon.id + 1
+                                    viewModel.updateCurrentId(1)
                                 }
                             }
                         ) {

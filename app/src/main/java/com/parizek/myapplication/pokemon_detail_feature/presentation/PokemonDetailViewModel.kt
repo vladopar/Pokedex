@@ -1,20 +1,13 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.parizek.myapplication.pokemon_detail_feature.core.Resource
-import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon
 import com.parizek.myapplication.pokemon_detail_feature.domain.repository.PokemonDetailRepository
-import com.parizek.myapplication.ui.theme.PokedexTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,9 +28,12 @@ class PokemonDetailViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = repo.getPokemonDetail(name)) {
                 is Resource.Success -> {
-                    state = state.copy(
-                        pokemon = result.data
-                    )
+                    result.data.let {pokemon ->
+                        state = state.copy(
+                            pokemon = pokemon,
+                            currentId = pokemon?.id ?: 0,
+                        )
+                    }
                 }
                 is Resource.Loading -> {
 
@@ -47,5 +43,9 @@ class PokemonDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun updateCurrentId(i: Int) {
+        state = state.copy(currentId = state.currentId + i)
     }
 }

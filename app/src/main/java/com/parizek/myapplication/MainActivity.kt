@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PokemonDetailScreen(state = viewModel.state, viewModel = viewModel)
+                    PokemonDetailScreen(viewModel = viewModel)
                 }
             }
         }
