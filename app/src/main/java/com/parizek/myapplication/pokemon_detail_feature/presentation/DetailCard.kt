@@ -19,12 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +42,6 @@ import com.parizek.myapplication.ui.theme.statBase
 fun DetailCard(
     cardLocation: Offset,
     state: PokemonDetailState,
-    onClick: (Int) -> Unit,
     modifier: Modifier
     ) {
     val tabs = remember { mutableStateListOf("tab1","tab2") }
@@ -63,7 +59,6 @@ fun DetailCard(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 30.dp)
@@ -83,7 +78,7 @@ fun DetailCard(
                 text = "Base Stats",
                 color = Color.Black,
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(32.dp)
             )
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -95,7 +90,7 @@ fun DetailCard(
                     var statBarLoading by remember { mutableStateOf(false) }
                     val statValue by animateDpAsState(
                         targetValue = (if (statBarLoading) stats.first.dp else 0.dp),
-                        animationSpec = tween(800, 1000, FastOutSlowInEasing)
+                        animationSpec = tween(800, 400, FastOutSlowInEasing)
                     )
 
                     LaunchedEffect(key1 = true) {
@@ -144,37 +139,6 @@ fun DetailCard(
                             ) {}
                         }
                     }
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f, false)
-                    .padding(32.dp)
-            ) {
-                Button(
-                    modifier = Modifier
-                        .weight(0.5f),
-                    onClick = {
-                        if (state.pokemon?.id!! != 1) {
-                            onClick(-1)
-                        }
-                    }
-                ) {
-                    Text(text = "Previous")
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Button(
-                    modifier = Modifier
-                        .weight(0.5f),
-                    onClick = {
-                        if (state.pokemon?.id!! != 151) {
-                            onClick(1)
-                        }
-                    }
-                ) {
-                    Text(text = "Next")
                 }
             }
         }

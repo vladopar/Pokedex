@@ -1,15 +1,19 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
-import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -25,17 +29,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -67,10 +65,6 @@ import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon
 import com.parizek.myapplication.ui.theme.almostWhite
 import com.parizek.myapplication.ui.theme.grassDark
 import com.parizek.myapplication.ui.theme.grassLight
-import com.parizek.myapplication.ui.theme.statActive
-import com.parizek.myapplication.ui.theme.statBase
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -88,18 +82,20 @@ fun PokemonDetailScreen(
         Animatable(currentRotation)
     }
 
-    var isContentVisible by remember { mutableStateOf(false) }
+    var isContentVisibleOnEnter by remember { mutableStateOf(false) }
+
+    var swipeVisibility by remember { mutableStateOf(true) }
 
     val imageLocation by animateOffsetAsState(
-        targetValue = if (isContentVisible) Offset(0F, 0F) else Offset(0f, 1000f),
+        targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, 1000f),
         animationSpec = tween(1500, easing = FastOutSlowInEasing)
     )
     val cardLocation by animateOffsetAsState(
-        targetValue = if (isContentVisible) Offset(0F, 0F) else Offset(0f, 1000f),
+        targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, 1000f),
         animationSpec = tween(1500, easing = FastOutSlowInEasing)
     )
     val mainInfoLocation by animateOffsetAsState(
-        targetValue = if (isContentVisible) Offset(0F, 0F) else Offset(0f, -500f),
+        targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, -500f),
         animationSpec = tween(1500, easing = FastOutSlowInEasing)
     )
     val darkBackgroundColor by animateColorAsState(
@@ -115,7 +111,6 @@ fun PokemonDetailScreen(
     val swipeableState = rememberSwipeableState(initialValue = "A")
     val sizePx = (width).toFloat()
     val anchors = mapOf(0f to "A", -3 * sizePx to "B", 3 * sizePx to "C")
-
     val scope = rememberCoroutineScope()
 
     if (swipeableState.isAnimationRunning) {
@@ -125,30 +120,25 @@ fun PokemonDetailScreen(
                     "B" -> {
                         if (state.pokemon?.id!! != 151) {
                             viewModel.updateCurrentId(1)
-                        }
+                        } else scope.launch { swipeableState.animateTo("A") }
                     }
 
                     "C" -> {
                         if (state.pokemon?.id!! != 1) {
                             viewModel.updateCurrentId(-1)
-                        }
+                        } else scope.launch { swipeableState.animateTo("A") }
                     }
 
                     else -> {
                         return@onDispose
                     }
                 }
-                scope.launch {
-                    // in your real app if you don't have to display offset,
-                    // snap without animation
-                    // swipeableState.snapTo(SwipeDirection.Initial)
-                    swipeableState.animateTo("A")
-                }
             }
         }
     }
 
     LaunchedEffect(key1 = true) {
+        isContentVisibleOnEnter = true
         rotation.animateTo(
             targetValue = currentRotation + 360f,
             animationSpec = infiniteRepeatable(
@@ -158,26 +148,34 @@ fun PokemonDetailScreen(
         )
     }
 
-    LaunchedEffect(key1 = state.currentId) {
-        isContentVisible = false
-        delay(800)
-        async { viewModel.getPokemonDetail(state.currentId.toString()) }.await()
-        isContentVisible = true
-    }
+        LaunchedEffect(key1 = state.currentId) {
+         viewModel.getPokemonDetail(state.currentId.toString())
+            swipeVisibility = false
+            when (swipeableState.currentValue) {
+                "B" -> {
+                    swipeableState.animateTo("C")
+                }
+                "C" -> {
+                    swipeableState.animateTo("B")
+                }
+            }
+            swipeVisibility = true
+            swipeableState.animateTo(
+                targetValue = "A",
+//                anim = tween()
+            )
+        }
 
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .fillMaxSize()
             .background(color = darkBackgroundColor)
-            .offset{
-                IntOffset(swipeableState.offset.value.roundToInt(),0)
-            }
             .swipeable(
                 state = swipeableState,
                 anchors = anchors,
                 orientation = Orientation.Horizontal,
-                )
+            )
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -200,47 +198,53 @@ fun PokemonDetailScreen(
                 .fillMaxSize()
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                        .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
                 ) {
-                    Text(
-                        text = "${state.pokemon?.name}",
-                        color = almostWhite,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "#${state.pokemon?.idString}",
-                        color = almostWhite,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(state.pokemon?.types ?: emptyList()) { type ->
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                    ) {
                         Text(
-                            text = type.second,
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = "${state.pokemon?.name}",
                             color = almostWhite,
-                            modifier = Modifier
-                                .background(
-                                    color = state.pokemon?.colors?.first() ?: grassLight,
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
                         )
+                        Text(
+                            text = "#${state.pokemon?.idString}",
+                            color = almostWhite,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(state.pokemon?.types ?: emptyList()) { type ->
+                            Text(
+                                text = type.second,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = almostWhite,
+                                modifier = Modifier
+                                    .background(
+                                        color = state.pokemon?.colors?.first() ?: grassLight,
+                                        shape = RoundedCornerShape(100)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -248,7 +252,6 @@ fun PokemonDetailScreen(
             DetailCard(
                 cardLocation = cardLocation,
                 state = state,
-                onClick = { viewModel.updateCurrentId(it) },
                 modifier = Modifier
                     .weight(0.7f)
             )
@@ -260,17 +263,26 @@ fun PokemonDetailScreen(
                 .fillMaxSize()
         ) {
             Spacer(modifier = Modifier.height(140.dp))
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(state.pokemon?.sprite)
-                    .scale(Scale.FIT)
-                    .build(),
-                contentDescription = null,
-                alignment = Alignment.BottomCenter,
-                modifier = Modifier
-                    .size(270.dp)
-                    .offset(imageLocation.x.dp, imageLocation.y.dp)
-            )
+            AnimatedVisibility(
+                visible = swipeVisibility,
+                enter = EnterTransition.None,
+                exit = ExitTransition.None,
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(state.pokemon?.sprite)
+                        .scale(Scale.FIT)
+                        .build(),
+                    contentDescription = null,
+                    alignment = Alignment.BottomCenter,
+                    modifier = Modifier
+                        .size(270.dp)
+                        .offset(imageLocation.x.dp, imageLocation.y.dp)
+                        .offset {
+                            IntOffset(swipeableState.offset.value.roundToInt(), 0)
+                        }
+                )
+            }
         }
     }
 }

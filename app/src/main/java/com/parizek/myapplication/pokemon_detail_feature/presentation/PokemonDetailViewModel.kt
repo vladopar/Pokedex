@@ -21,11 +21,12 @@ class PokemonDetailViewModel @Inject constructor(
         private set
 
     init {
-        getPokemonDetail((1..151).random().toString())
+        viewModelScope.launch {
+            getPokemonDetail((1..151).random().toString())
+        }
     }
 
-    fun getPokemonDetail(name: String) {
-        viewModelScope.launch {
+    suspend fun getPokemonDetail(name: String) {
             when (val result = repo.getPokemonDetail(name)) {
                 is Resource.Success -> {
                     result.data.let {pokemon ->
@@ -42,7 +43,6 @@ class PokemonDetailViewModel @Inject constructor(
 
                 }
             }
-        }
     }
 
     fun updateCurrentId(i: Int) {
