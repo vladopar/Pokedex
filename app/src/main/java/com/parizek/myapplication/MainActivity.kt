@@ -14,9 +14,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.pokemon_detail_feature.presentation.PokemonDetailScreen
 import com.parizek.myapplication.pokemon_detail_feature.presentation.PokemonDetailViewModel
+import com.parizek.myapplication.pokemon_list_feature.presentation.PokemonListScreen
+import com.parizek.myapplication.pokemon_list_feature.presentation.PokemonListViewModel
 import com.parizek.myapplication.ui.theme.PokedexTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,17 +29,30 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: PokemonDetailViewModel by viewModels()
         setContent {
+            val navController = rememberNavController()
+
             PokedexTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    PokemonDetailScreen(
-                        viewModel = viewModel,
-                    )
+                    NavHost(
+                        navController = navController,
+                        startDestination = "detail"
+                    ) {
+                        composable("list") {
+                            val viewModel: PokemonListViewModel by viewModels()
+                            PokemonListScreen(state = viewModel.state)
+                        }
+                        composable("detail") {
+                            val viewModel: PokemonDetailViewModel by viewModels()
+                            PokemonDetailScreen(
+                                viewModel = viewModel,
+                            )
+                        }
+                    }
                 }
             }
         }

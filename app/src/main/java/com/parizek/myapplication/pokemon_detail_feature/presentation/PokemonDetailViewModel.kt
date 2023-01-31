@@ -3,10 +3,9 @@ package com.parizek.myapplication.pokemon_detail_feature.presentation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.parizek.myapplication.pokemon_detail_feature.core.Resource
+import com.parizek.myapplication.core.Resource
 import com.parizek.myapplication.pokemon_detail_feature.domain.repository.PokemonDetailRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch

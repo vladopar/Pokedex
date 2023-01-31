@@ -1,4 +1,4 @@
-package com.parizek.myapplication.pokemon_detail_feature.core
+package com.parizek.myapplication.core
 
 sealed class Resource<T>(val data: T? = null, val message: String? = null) {
     class Success<T>(data: T?) : Resource<T>(data)

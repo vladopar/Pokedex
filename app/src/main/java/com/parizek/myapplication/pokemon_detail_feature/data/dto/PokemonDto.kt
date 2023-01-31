@@ -1,4 +1,4 @@
-package com.parizek.myapplication.pokemon_detail_feature.data.model
+package com.parizek.myapplication.pokemon_detail_feature.data.dto
 
 import androidx.compose.ui.graphics.Color
 import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon

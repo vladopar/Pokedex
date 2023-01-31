@@ -1,6 +1,6 @@
 package com.parizek.myapplication.pokemon_detail_feature.data.remote
 
-import com.parizek.myapplication.pokemon_detail_feature.data.model.PokemonDto
+import com.parizek.myapplication.pokemon_detail_feature.data.dto.PokemonDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 

@@ -1,4 +1,4 @@
-package com.parizek.myapplication.pokemon_detail_feature.data.model
+package com.parizek.myapplication.pokemon_detail_feature.data.dto
 
 import com.squareup.moshi.Json
 

@@ -39,6 +39,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +75,7 @@ import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon
 import com.parizek.myapplication.ui.theme.almostWhite
 import com.parizek.myapplication.ui.theme.grassDark
 import com.parizek.myapplication.ui.theme.grassLight
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -197,6 +199,7 @@ fun PokemonDetailScreen(
                 state = swipeableState,
                 anchors = anchors,
                 orientation = Orientation.Horizontal,
+                thresholds = { _, _ -> FractionalThreshold(0.3f) }
             )
     ) {
         Column(

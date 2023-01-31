@@ -26,7 +26,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +56,7 @@ fun DetailCard(
     isLoadedFromMainScreen: Boolean,
     modifier: Modifier
 ) {
-    val tabs = remember { mutableStateListOf("tab1", "tab2") }
+    val tabs = remember { mutableStateListOf("Base Stats", "tab2") }
     var tabState by remember { mutableStateOf(0) }
     Card(
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
@@ -73,12 +78,25 @@ fun DetailCard(
 //            TabRow(
 //                selectedTabIndex = tabState,
 //                modifier = Modifier
-//                    .padding(16.dp)
+//                    .padding(top = 32.dp, start = 16.dp, end = 16.dp)
+//                    .background(Color.White),
+//                containerColor = Color.White,
+//                indicator = { tabPositions ->
+//                    TabRowDefaults.Indicator(
+//                        modifier = Modifier.tabIndicatorOffset(
+//                            currentTabPosition = tabPositions[tabState],
+//                        )
+//                    )
+//                }
 //            ) {
 //                tabs.forEachIndexed { index, tab ->
-//                    Tab(selected = tabState == index, onClick = { tabState = index }) {
-//                        Text("SomeText $index $tab")
-//                    }
+//                    Tab(
+//                        selected = tabState == index,
+//                        onClick = { tabState = index },
+//                        modifier = Modifier
+//                            .height(36.dp),
+//                        text = { Text(text = tab, color = Color.Black)},
+//                    )
 //                }
 //            }
             Text(
@@ -87,12 +105,13 @@ fun DetailCard(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(32.dp)
             )
-            LazyColumn(
+            Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                items(state.pokemon?.stats ?: emptyList()) { stats ->
+                state.pokemon?.stats?.forEach{ stats ->
 
                     var statChange by remember { mutableStateOf(false) }
                     val statValue by animateDpAsState(
