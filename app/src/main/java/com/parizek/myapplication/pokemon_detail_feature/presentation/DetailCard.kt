@@ -48,6 +48,7 @@ import com.parizek.myapplication.ui.theme.statBase
 fun DetailCard(
     cardLocation: Offset,
     state: PokemonDetailState,
+    isLoadedFromMainScreen: Boolean,
     modifier: Modifier
 ) {
     val tabs = remember { mutableStateListOf("tab1", "tab2") }
@@ -96,7 +97,7 @@ fun DetailCard(
                     var statChange by remember { mutableStateOf(false) }
                     val statValue by animateDpAsState(
                         targetValue = (if (statChange) stats.first.dp else 0.dp),
-                        animationSpec = tween(800, 400, FastOutSlowInEasing)
+                        animationSpec = tween(800, if(isLoadedFromMainScreen) 600 else 0, FastOutSlowInEasing)
                     )
 
                     LaunchedEffect(key1 = true) {
@@ -116,7 +117,7 @@ fun DetailCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         AnimatedContent(
                             targetState = stats.first,
-                            transitionSpec = { slideInHorizontally { it } with slideOutHorizontally { -it } },
+                            transitionSpec = { slideInHorizontally { -it } with slideOutHorizontally { it } },
                             modifier = Modifier.weight(0.2f)
                         ) {
                             Text(

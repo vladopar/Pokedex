@@ -1,8 +1,10 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -13,7 +15,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -68,7 +72,7 @@ import com.parizek.myapplication.ui.theme.grassLight
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PokemonDetailScreen(
     viewModel: PokemonDetailViewModel
@@ -83,6 +87,8 @@ fun PokemonDetailScreen(
     }
 
     var isContentVisibleOnEnter by remember { mutableStateOf(false) }
+
+    var isLoadedFromMainScreen by remember { mutableStateOf(true) }
 
     var swipeVisibility by remember { mutableStateOf(true) }
 
@@ -116,6 +122,7 @@ fun PokemonDetailScreen(
     if (swipeableState.isAnimationRunning) {
         DisposableEffect(Unit) {
             onDispose {
+                isLoadedFromMainScreen = false
                 when (swipeableState.currentValue) {
                     "B" -> {
                         if (state.pokemon?.id!! != 151) {
@@ -163,7 +170,6 @@ fun PokemonDetailScreen(
         swipeVisibility = true
         swipeableState.animateTo(
             targetValue = "A",
-//                anim = tween()
         )
     }
 
@@ -199,54 +205,65 @@ fun PokemonDetailScreen(
                 .fillMaxSize()
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
+            AnimatedContent(
+                targetState = state.pokemon,
+                transitionSpec = {
+                    slideInVertically { -it } + fadeIn() with
+                            slideOutVertically { it } + fadeOut()
+                }
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                        .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
                 ) {
-                    Text(
-                        text = "${state.pokemon?.name}",
-                        color = almostWhite,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "#${state.pokemon?.idString}",
-                        color = almostWhite,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(state.pokemon?.types ?: emptyList()) { type ->
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                    ) {
                         Text(
-                            text = type.second,
-                            style = MaterialTheme.typography.bodyMedium,
+                            text = "${state.pokemon?.name}",
                             color = almostWhite,
-                            modifier = Modifier
-                                .background(
-                                    color = state.pokemon?.colors?.first() ?: grassLight,
-                                    shape = RoundedCornerShape(100)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "#${state.pokemon?.idString}",
+                            color = almostWhite,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(state.pokemon?.types ?: emptyList()) { type ->
+                            Text(
+                                text = type.second,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = almostWhite,
+                                modifier = Modifier
+                                    .background(
+                                        color = state.pokemon?.colors?.first() ?: grassLight,
+                                        shape = RoundedCornerShape(100)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+
                 }
+
             }
             Spacer(modifier = Modifier.weight(0.3f))
             DetailCard(
                 cardLocation = cardLocation,
                 state = state,
+                isLoadedFromMainScreen = isLoadedFromMainScreen,
                 modifier = Modifier
                     .weight(0.7f)
             )
