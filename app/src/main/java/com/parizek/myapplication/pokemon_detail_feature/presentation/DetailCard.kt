@@ -23,10 +23,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,6 +48,8 @@ fun DetailCard(
     onClick: (Int) -> Unit,
     modifier: Modifier
     ) {
+    val tabs = remember { mutableStateListOf("tab1","tab2") }
+    var tabState by remember { mutableStateOf(0) }
     Card(
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -58,10 +63,22 @@ fun DetailCard(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 30.dp)
         ) {
+//            TabRow(
+//                selectedTabIndex = tabState,
+//                modifier = Modifier
+//                    .padding(16.dp)
+//            ) {
+//                tabs.forEachIndexed { index, tab ->
+//                    Tab(selected = tabState == index, onClick = { tabState = index }) {
+//                        Text("SomeText $index $tab")
+//                    }
+//                }
+//            }
             Text(
                 text = "Base Stats",
                 color = Color.Black,
@@ -133,6 +150,7 @@ fun DetailCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1f, false)
                     .padding(32.dp)
             ) {
                 Button(
