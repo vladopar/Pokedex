@@ -1,5 +1,6 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -21,6 +22,7 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,21 +67,26 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.R
 import com.parizek.myapplication.pokemon_detail_feature.domain.model.Pokemon
 import com.parizek.myapplication.ui.theme.almostWhite
 import com.parizek.myapplication.ui.theme.grassDark
 import com.parizek.myapplication.ui.theme.grassLight
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PokemonDetailScreen(
-    viewModel: PokemonDetailViewModel
+    viewModel: PokemonDetailViewModel,
 ) {
 
     val state = viewModel.state
+
+    val systemUiController = rememberSystemUiController()
 
     val currentRotation by remember { mutableStateOf(0f) }
 
@@ -152,6 +160,13 @@ fun PokemonDetailScreen(
                 animation = tween(3000, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Restart
             )
+        )
+    }
+
+    SideEffect {
+        systemUiController.setStatusBarColor(
+            color = darkBackgroundColor,
+            darkIcons = false
         )
     }
 
