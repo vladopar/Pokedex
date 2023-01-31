@@ -1,3 +1,3 @@
 # Pokedex
 Animation study with Jetpack Compose
-![](pokedex_demo.gif)
+<img src="pokedex_demo.gif" width="50%" height="50%"/>
