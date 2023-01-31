@@ -1,8 +1,13 @@
 package com.parizek.myapplication.pokemon_detail_feature.presentation
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,13 +43,14 @@ import androidx.compose.ui.unit.dp
 import com.parizek.myapplication.ui.theme.statActive
 import com.parizek.myapplication.ui.theme.statBase
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DetailCard(
     cardLocation: Offset,
     state: PokemonDetailState,
     modifier: Modifier
-    ) {
-    val tabs = remember { mutableStateListOf("tab1","tab2") }
+) {
+    val tabs = remember { mutableStateListOf("tab1", "tab2") }
     var tabState by remember { mutableStateOf(0) }
     Card(
         shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
@@ -87,14 +93,14 @@ fun DetailCard(
             ) {
                 items(state.pokemon?.stats ?: emptyList()) { stats ->
 
-                    var statBarLoading by remember { mutableStateOf(false) }
+                    var statChange by remember { mutableStateOf(false) }
                     val statValue by animateDpAsState(
-                        targetValue = (if (statBarLoading) stats.first.dp else 0.dp),
+                        targetValue = (if (statChange) stats.first.dp else 0.dp),
                         animationSpec = tween(800, 400, FastOutSlowInEasing)
                     )
 
                     LaunchedEffect(key1 = true) {
-                        statBarLoading = true
+                        statChange = true
                     }
 
                     Row(
@@ -108,11 +114,17 @@ fun DetailCard(
                             modifier = Modifier.weight(0.2f)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = stats.first.toString(),
-                            color = Color.Black,
+                        AnimatedContent(
+                            targetState = stats.first,
+                            transitionSpec = { slideInHorizontally { it } with slideOutHorizontally { -it } },
                             modifier = Modifier.weight(0.2f)
-                        )
+                        ) {
+                            Text(
+                                text = stats.first.toString(),
+                                color = Color.Black,
+                                modifier = Modifier.weight(0.2f)
+                            )
+                        }
                         Box(
                             contentAlignment = Alignment.CenterStart,
                             modifier = Modifier

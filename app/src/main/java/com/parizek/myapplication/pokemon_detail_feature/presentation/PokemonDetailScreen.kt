@@ -148,23 +148,24 @@ fun PokemonDetailScreen(
         )
     }
 
-        LaunchedEffect(key1 = state.currentId) {
-         viewModel.getPokemonDetail(state.currentId.toString())
-            swipeVisibility = false
-            when (swipeableState.currentValue) {
-                "B" -> {
-                    swipeableState.animateTo("C")
-                }
-                "C" -> {
-                    swipeableState.animateTo("B")
-                }
+    LaunchedEffect(key1 = state.currentId) {
+        viewModel.getPokemonDetail(state.currentId.toString())
+        swipeVisibility = false
+        when (swipeableState.currentValue) {
+            "B" -> {
+                swipeableState.animateTo("C")
             }
-            swipeVisibility = true
-            swipeableState.animateTo(
-                targetValue = "A",
-//                anim = tween()
-            )
+
+            "C" -> {
+                swipeableState.animateTo("B")
+            }
         }
+        swipeVisibility = true
+        swipeableState.animateTo(
+            targetValue = "A",
+//                anim = tween()
+        )
+    }
 
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -198,53 +199,47 @@ fun PokemonDetailScreen(
                 .fillMaxSize()
         ) {
             Spacer(modifier = Modifier.height(20.dp))
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(),
-                exit = fadeOut()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
             ) {
-                Column(
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset(x = mainInfoLocation.x.dp, y = mainInfoLocation.y.dp)
+                        .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
-                    ) {
+                    Text(
+                        text = "${state.pokemon?.name}",
+                        color = almostWhite,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "#${state.pokemon?.idString}",
+                        color = almostWhite,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(state.pokemon?.types ?: emptyList()) { type ->
                         Text(
-                            text = "${state.pokemon?.name}",
+                            text = type.second,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = almostWhite,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
+                            modifier = Modifier
+                                .background(
+                                    color = state.pokemon?.colors?.first() ?: grassLight,
+                                    shape = RoundedCornerShape(100)
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
-                        Text(
-                            text = "#${state.pokemon?.idString}",
-                            color = almostWhite,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(state.pokemon?.types ?: emptyList()) { type ->
-                            Text(
-                                text = type.second,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = almostWhite,
-                                modifier = Modifier
-                                    .background(
-                                        color = state.pokemon?.colors?.first() ?: grassLight,
-                                        shape = RoundedCornerShape(100)
-                                    )
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
-                        }
                     }
                 }
             }
