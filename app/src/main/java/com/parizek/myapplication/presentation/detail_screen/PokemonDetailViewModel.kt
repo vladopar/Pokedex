@@ -1,10 +1,8 @@
 package com.parizek.myapplication.presentation.detail_screen
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.parizek.myapplication.core.Resource
@@ -21,30 +19,28 @@ class PokemonDetailViewModel @Inject constructor(
     var state by mutableStateOf(PokemonDetailState())
         private set
 
-    fun getPokemonDetail(name: String) {
-        viewModelScope.launch {
-            when (val result = repo.getPokemonDetail(name)) {
-                is Resource.Success -> {
-                    result.data.let { pokemon ->
-                        state = state.copy(
-                            pokemon = pokemon,
-                            currentId = pokemon?.id ?: 0,
-                        )
-                    }
+    suspend fun getPokemonDetail(id: Int) {
+        when (val result = repo.getPokemonDetail(id.toString())) {
+            is Resource.Success -> {
+                result.data.let { pokemon ->
+                    state = state.copy(
+                        pokemon = pokemon,
+                        currentId = pokemon?.id ?: 0,
+                    )
                 }
+            }
 
-                is Resource.Loading -> {
+            is Resource.Loading -> {
 
-                }
+            }
 
-                is Resource.Error -> {
+            is Resource.Error -> {
 
-                }
             }
         }
     }
 
     fun updateCurrentId(i: Int) {
-        state = state.copy(currentId = state.currentId + i)
+        state = state.copy(currentId = i)
     }
 }

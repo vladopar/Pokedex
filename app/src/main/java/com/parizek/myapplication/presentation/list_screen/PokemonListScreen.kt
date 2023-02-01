@@ -41,11 +41,12 @@ import coil.request.ImageRequest
 import coil.size.Scale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.R
+import com.parizek.myapplication.ui.theme.almostWhite
 
 @Composable
 fun PokemonListScreen(
     viewModel: PokemonListViewModel,
-    onClick: (String) -> Unit
+    onClick: (Int) -> Unit
 ) {
 
     val pokemonList = viewModel.pokemonList
@@ -86,7 +87,7 @@ fun PokemonListScreen(
                         modifier = Modifier
                             .height(150.dp)
                             .clickable {
-                                onClick(pokemon.nameForList)
+                                onClick(pokemon.id)
                             }
                     ) {
                         Box(
@@ -102,11 +103,13 @@ fun PokemonListScreen(
                             ) {
                                 Text(
                                     text = pokemon.nameForList.replaceFirstChar { it.uppercase() },
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = almostWhite
                                 )
                                 Text(
                                     text = "#${pokemon.idForList}",
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = almostWhite
                                 )
                             }
                             Image(

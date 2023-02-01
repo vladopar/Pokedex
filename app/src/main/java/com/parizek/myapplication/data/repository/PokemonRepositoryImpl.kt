@@ -34,6 +34,7 @@ class PokemonRepositoryImpl @Inject constructor(
             val data: List<PokemonListData> = result.results.map {
                 val pokemon = api.getPokemonDetail(it.name)
                 PokemonListData(
+                    id = pokemon.id ?: 0,
                     idForList = String.format("%03d", pokemon.id),
                     nameForList = it.name,
                     spriteForList = pokemon.sprites?.other?.officialArtwork?.frontDefault ?: "",

@@ -1,6 +1,5 @@
 package com.parizek.myapplication.presentation.detail_screen
 
-import androidx.compose.ui.graphics.Color
 import com.parizek.myapplication.domain.model.Pokemon
 
 data class PokemonDetailState(

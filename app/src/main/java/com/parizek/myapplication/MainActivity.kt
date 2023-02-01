@@ -1,7 +1,6 @@
 package com.parizek.myapplication
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -49,16 +47,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            "detail/{name}",
-                            arguments = listOf(navArgument("name") {
-                                type = NavType.StringType
+                            "detail/{id}",
+                            arguments = listOf(navArgument("id") {
+                                type = NavType.IntType
                             })
                         ) { backStackEntry ->
                             val viewModel: PokemonDetailViewModel by viewModels()
                             PokemonDetailScreen(
-                                name = backStackEntry.arguments?.getString("name")!!,
+                                id = backStackEntry.arguments?.getInt("id")!!,
                                 state = viewModel.state,
-                                onSwipe = {viewModel.updateCurrentId(it)},
+                                updateCurrentId = {viewModel.updateCurrentId(it)},
                                 getPokemonDetail = {viewModel.getPokemonDetail(it)}
                             )
                         }

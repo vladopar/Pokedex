@@ -83,10 +83,10 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PokemonDetailScreen(
-    name:String,
+    id: Int,
     state: PokemonDetailState,
-    onSwipe: (Int) -> Unit,
-    getPokemonDetail: (String) -> Unit
+    updateCurrentId: (Int) -> Unit,
+    getPokemonDetail: suspend (Int) -> Unit
 ) {
 
     val systemUiController = rememberSystemUiController()
@@ -130,25 +130,25 @@ fun PokemonDetailScreen(
     val anchors = mapOf(0f to "A", -3 * sizePx to "B", 3 * sizePx to "C")
     val scope = rememberCoroutineScope()
 
-        if (swipeableState.isAnimationRunning) {
-            DisposableEffect(Unit) {
-                onDispose {
-                    isLoadedFromMainScreen = false
-                    when (swipeableState.currentValue) {
-                        "B" -> {
-                            if (state.pokemon?.id!! != 151) {
-                                onSwipe(1)
-                            } else scope.launch { swipeableState.animateTo("A") }
-                        }
+    if (swipeableState.isAnimationRunning) {
+        DisposableEffect(Unit) {
+            onDispose {
+                isLoadedFromMainScreen = false
+                when (swipeableState.currentValue) {
+                    "B" -> {
+                        if (state.pokemon?.id!! != 151) {
+                            updateCurrentId(state.currentId + 1)
+                        } else scope.launch { swipeableState.animateTo("A") }
+                    }
 
-                        "C" -> {
-                            if (state.pokemon?.id!! != 1) {
-                                onSwipe(-1)
-                            } else scope.launch { swipeableState.animateTo("A") }
-                        }
+                    "C" -> {
+                        if (state.pokemon?.id!! != 1) {
+                            updateCurrentId(state.currentId - 1)
+                        } else scope.launch { swipeableState.animateTo("A") }
+                    }
 
-                        else -> {
-                            return@onDispose
+                    else -> {
+                        return@onDispose
                     }
                 }
             }
@@ -156,7 +156,7 @@ fun PokemonDetailScreen(
     }
 
     LaunchedEffect(key1 = true) {
-        getPokemonDetail(name)
+        updateCurrentId(id)
         isContentVisibleOnEnter = true
         rotation.animateTo(
             targetValue = currentRotation + 360f,
@@ -174,24 +174,25 @@ fun PokemonDetailScreen(
         )
     }
 
-        LaunchedEffect(key1 = state.currentId) {
-            getPokemonDetail(state.currentId.toString())
-            swipeVisibility = false
-            when (swipeableState.currentValue) {
-                "B" -> {
-                    swipeableState.animateTo("C")
-                }
-
-                "C" -> {
-                    swipeableState.animateTo("B")
-                }
+    LaunchedEffect(key1 = state.currentId) {
+        getPokemonDetail(state.currentId)
+        Log.d("XXX","id:${state.currentId}")
+        swipeVisibility = false
+        when (swipeableState.currentValue) {
+            "B" -> {
+                swipeableState.animateTo("C")
             }
-            swipeVisibility = true
-            swipeableState.animateTo(
-                targetValue = "A",
-                anim = tween(500, 100, LinearOutSlowInEasing)
-            )
+
+            "C" -> {
+                swipeableState.animateTo("B")
+            }
         }
+        swipeVisibility = true
+        swipeableState.animateTo(
+            targetValue = "A",
+            anim = tween(500, 100, LinearOutSlowInEasing)
+        )
+    }
 
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -344,6 +345,7 @@ val previewPokemon = Pokemon(
 
 
 @Preview
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PokemonDetailScreenPreview() {
     PokedexTheme {
@@ -353,9 +355,9 @@ fun PokemonDetailScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             PokemonDetailScreen(
-                name = "bulbasaur",
+                id = 1,
                 state = PokemonDetailState(previewPokemon),
-                onSwipe = {},
+                updateCurrentId = {},
                 getPokemonDetail = {}
             )
         }
