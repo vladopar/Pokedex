@@ -21,29 +21,25 @@ class PokemonDetailViewModel @Inject constructor(
     var state by mutableStateOf(PokemonDetailState())
         private set
 
-//    init {
-//        viewModelScope.launch {
-//            getPokemonDetail((1..151).random().toString())
-//        }
-//    }
-
-    suspend fun getPokemonDetail(name: String) {
-        when (val result = repo.getPokemonDetail(name)) {
-            is Resource.Success -> {
-                result.data.let { pokemon ->
-                    state = state.copy(
-                        pokemon = pokemon,
-                        currentId = pokemon?.id ?: 0,
-                    )
+    fun getPokemonDetail(name: String) {
+        viewModelScope.launch {
+            when (val result = repo.getPokemonDetail(name)) {
+                is Resource.Success -> {
+                    result.data.let { pokemon ->
+                        state = state.copy(
+                            pokemon = pokemon,
+                            currentId = pokemon?.id ?: 0,
+                        )
+                    }
                 }
-            }
 
-            is Resource.Loading -> {
+                is Resource.Loading -> {
 
-            }
+                }
 
-            is Resource.Error -> {
+                is Resource.Error -> {
 
+                }
             }
         }
     }

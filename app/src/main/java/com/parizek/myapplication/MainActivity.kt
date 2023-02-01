@@ -56,8 +56,10 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val viewModel: PokemonDetailViewModel by viewModels()
                             PokemonDetailScreen(
-                                viewModel = viewModel,
-                                name = backStackEntry.arguments?.getString("name")!!
+                                name = backStackEntry.arguments?.getString("name")!!,
+                                state = viewModel.state,
+                                onSwipe = {viewModel.updateCurrentId(it)},
+                                getPokemonDetail = {viewModel.getPokemonDetail(it)}
                             )
                         }
                     }

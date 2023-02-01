@@ -43,6 +43,7 @@ import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -63,6 +64,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -71,6 +73,7 @@ import coil.size.Scale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.R
 import com.parizek.myapplication.domain.model.Pokemon
+import com.parizek.myapplication.ui.theme.PokedexTheme
 import com.parizek.myapplication.ui.theme.almostWhite
 import com.parizek.myapplication.ui.theme.grassDark
 import com.parizek.myapplication.ui.theme.grassLight
@@ -80,11 +83,11 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PokemonDetailScreen(
-    viewModel: PokemonDetailViewModel,
-    name:String
+    name:String,
+    state: PokemonDetailState,
+    onSwipe: (Int) -> Unit,
+    getPokemonDetail: (String) -> Unit
 ) {
-
-    val state = viewModel.state
 
     val systemUiController = rememberSystemUiController()
 
@@ -127,27 +130,25 @@ fun PokemonDetailScreen(
     val anchors = mapOf(0f to "A", -3 * sizePx to "B", 3 * sizePx to "C")
     val scope = rememberCoroutineScope()
 
-    if (swipeableState.isAnimationRunning) {
-        DisposableEffect(Unit) {
-            onDispose {
-                isLoadedFromMainScreen = false
-                when (swipeableState.currentValue) {
-                    "B" -> {
-                        if (state.pokemon?.id!! != 151) {
-                            viewModel.updateCurrentId(1)
-                            Log.d("XXX","update:${state.currentId}")
-                        } else scope.launch { swipeableState.animateTo("A") }
-                    }
+        if (swipeableState.isAnimationRunning) {
+            DisposableEffect(Unit) {
+                onDispose {
+                    isLoadedFromMainScreen = false
+                    when (swipeableState.currentValue) {
+                        "B" -> {
+                            if (state.pokemon?.id!! != 151) {
+                                onSwipe(1)
+                            } else scope.launch { swipeableState.animateTo("A") }
+                        }
 
-                    "C" -> {
-                        if (state.pokemon?.id!! != 1) {
-                            viewModel.updateCurrentId(-1)
-                            Log.d("XXX","update:${state.currentId}")
-                        } else scope.launch { swipeableState.animateTo("A") }
-                    }
+                        "C" -> {
+                            if (state.pokemon?.id!! != 1) {
+                                onSwipe(-1)
+                            } else scope.launch { swipeableState.animateTo("A") }
+                        }
 
-                    else -> {
-                        return@onDispose
+                        else -> {
+                            return@onDispose
                     }
                 }
             }
@@ -155,8 +156,7 @@ fun PokemonDetailScreen(
     }
 
     LaunchedEffect(key1 = true) {
-        viewModel.getPokemonDetail(name)
-
+        getPokemonDetail(name)
         isContentVisibleOnEnter = true
         rotation.animateTo(
             targetValue = currentRotation + 360f,
@@ -174,24 +174,24 @@ fun PokemonDetailScreen(
         )
     }
 
-    LaunchedEffect(key1 = state.currentId) {
-        viewModel.getPokemonDetail(state.currentId.toString())
-        swipeVisibility = false
-        when (swipeableState.currentValue) {
-            "B" -> {
-                swipeableState.animateTo("C")
-            }
+        LaunchedEffect(key1 = state.currentId) {
+            getPokemonDetail(state.currentId.toString())
+            swipeVisibility = false
+            when (swipeableState.currentValue) {
+                "B" -> {
+                    swipeableState.animateTo("C")
+                }
 
-            "C" -> {
-                swipeableState.animateTo("B")
+                "C" -> {
+                    swipeableState.animateTo("B")
+                }
             }
+            swipeVisibility = true
+            swipeableState.animateTo(
+                targetValue = "A",
+                anim = tween(500, 100, LinearOutSlowInEasing)
+            )
         }
-        swipeVisibility = true
-        swipeableState.animateTo(
-            targetValue = "A",
-            anim = tween(500,100, LinearOutSlowInEasing)
-        )
-    }
 
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -343,7 +343,6 @@ val previewPokemon = Pokemon(
 )
 
 
-/*
 @Preview
 @Composable
 fun PokemonDetailScreenPreview() {
@@ -354,9 +353,12 @@ fun PokemonDetailScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             PokemonDetailScreen(
+                name = "bulbasaur",
                 state = PokemonDetailState(previewPokemon),
+                onSwipe = {},
+                getPokemonDetail = {}
             )
         }
     }
 
-}*/
+}

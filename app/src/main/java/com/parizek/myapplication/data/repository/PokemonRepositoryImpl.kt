@@ -1,6 +1,7 @@
 package com.parizek.myapplication.data.repository
 
 import com.parizek.myapplication.core.Resource
+import com.parizek.myapplication.data.dto.pokemon_detail.mapTypeToColor
 import com.parizek.myapplication.data.dto.pokemon_detail.toPokemon
 import com.parizek.myapplication.data.dto.pokemon_list.PokemonResult
 import com.parizek.myapplication.data.remote.PokemonApi
@@ -31,10 +32,12 @@ class PokemonRepositoryImpl @Inject constructor(
         return try {
             val result = api.getPokemons(limit, offset)
             val data: List<PokemonListData> = result.results.map {
+                val pokemon = api.getPokemonDetail(it.name)
                 PokemonListData(
+                    idForList = String.format("%03d", pokemon.id),
                     nameForList = it.name,
-                    spriteForList = api.getPokemonDetail(it.name).sprites?.other?.officialArtwork?.frontDefault
-                        ?: ""
+                    spriteForList = pokemon.sprites?.other?.officialArtwork?.frontDefault ?: "",
+                    colorsForList = mapTypeToColor(pokemon.types.first().type.name)
                 )
             }
             Resource.Success(
