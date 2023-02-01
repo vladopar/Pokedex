@@ -1,7 +1,6 @@
 package com.parizek.myapplication.di
 
-import com.parizek.myapplication.pokemon_detail_feature.data.remote.PokemonDetailApi
-import com.parizek.myapplication.pokemon_list_feature.data.remote.PokemonListApi
+import com.parizek.myapplication.data.remote.PokemonApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -29,19 +28,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePokemonDetailApi(): PokemonDetailApi {
+    fun providePokemonDetailApi(): PokemonApi {
 
-        return Retrofit.Builder()
-            .baseUrl("https://pokeapi.co/api/v2/")
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .client(httpCLient)
-            .build()
-            .create()
-    }
-
-    @Provides
-    @Singleton
-    fun providePokemonListApi(): PokemonListApi {
         return Retrofit.Builder()
             .baseUrl("https://pokeapi.co/api/v2/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))

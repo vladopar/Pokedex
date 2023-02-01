@@ -1,27 +1,24 @@
 package com.parizek.myapplication
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.parizek.myapplication.pokemon_detail_feature.presentation.PokemonDetailScreen
-import com.parizek.myapplication.pokemon_detail_feature.presentation.PokemonDetailViewModel
-import com.parizek.myapplication.pokemon_list_feature.presentation.PokemonListScreen
-import com.parizek.myapplication.pokemon_list_feature.presentation.PokemonListViewModel
+import androidx.navigation.navArgument
+import com.parizek.myapplication.presentation.detail_screen.PokemonDetailScreen
+import com.parizek.myapplication.presentation.detail_screen.PokemonDetailViewModel
+import com.parizek.myapplication.presentation.list_screen.PokemonListScreen
+import com.parizek.myapplication.presentation.list_screen.PokemonListViewModel
 import com.parizek.myapplication.ui.theme.PokedexTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,16 +37,27 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(
                         navController = navController,
-                        startDestination = "detail"
+                        startDestination = "list"
                     ) {
                         composable("list") {
                             val viewModel: PokemonListViewModel by viewModels()
-                            PokemonListScreen(state = viewModel.state)
+                            PokemonListScreen(
+                                viewModel = viewModel,
+                                onClick = {
+                                    navController.navigate("detail/$it")
+                                }
+                            )
                         }
-                        composable("detail") {
+                        composable(
+                            "detail/{name}",
+                            arguments = listOf(navArgument("name") {
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
                             val viewModel: PokemonDetailViewModel by viewModels()
                             PokemonDetailScreen(
                                 viewModel = viewModel,
+                                name = backStackEntry.arguments?.getString("name")!!
                             )
                         }
                     }

@@ -1,9 +1,7 @@
 package com.parizek.myapplication.di
 
-import com.parizek.myapplication.pokemon_detail_feature.data.repository.PokemonDetailRepositoryImpl
-import com.parizek.myapplication.pokemon_detail_feature.domain.repository.PokemonDetailRepository
-import com.parizek.myapplication.pokemon_list_feature.data.repository.PokemonListRepositoryImpl
-import com.parizek.myapplication.pokemon_list_feature.domain.repository.PokemonListRepository
+import com.parizek.myapplication.data.repository.PokemonRepositoryImpl
+import com.parizek.myapplication.domain.repository.PokemonRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,12 +15,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPokemonDetailRepository(
-        repository: PokemonDetailRepositoryImpl
-    ): PokemonDetailRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindPokemonListRepository(
-        repository: PokemonListRepositoryImpl
-    ): PokemonListRepository
+        repository: PokemonRepositoryImpl
+    ): PokemonRepository
 }
