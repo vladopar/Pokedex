@@ -15,9 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -35,12 +38,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.cachedIn
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.R
+import com.parizek.myapplication.domain.model.PokemonListData
 import com.parizek.myapplication.ui.theme.almostWhite
 
 @Composable
@@ -49,12 +58,15 @@ fun PokemonListScreen(
     onClick: (Int) -> Unit
 ) {
 
+    val pokemons = viewModel.getPokemonListPaginated().collectAsLazyPagingItems()
+
     val pokemonList = viewModel.pokemonList
     val endReached = viewModel.endReached
     val isLoading = viewModel.isLoading
 
     val systemUiController = rememberSystemUiController()
 
+    val listState = viewModel.listState
 
     SideEffect {
         systemUiController.setStatusBarColor(
@@ -68,76 +80,114 @@ fun PokemonListScreen(
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        if (pokemonList.isNotEmpty()) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier
-            ) {
-                itemsIndexed(pokemonList) { index, pokemon ->
-                    if (index >= pokemonList.size - 1 && !endReached && !isLoading) {
-                        viewModel.getPokemonList()
-                    }
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = pokemon.colorsForList.last()
-                        ),
+//            LazyVerticalGrid(
+//                columns = GridCells.Fixed(2),
+//                contentPadding = PaddingValues(16.dp),
+//                verticalArrangement = Arrangement.spacedBy(12.dp),
+//                horizontalArrangement = Arrangement.spacedBy(12.dp),
+//                modifier = Modifier
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            state = listState
+        ) {
+            items(
+                items = pokemons,
+                key = {it.id}
+            ) { pokemon ->
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = pokemon?.colorsForList?.last() ?: Color.White
+                    ),
+                    modifier = Modifier
+                        .height(150.dp)
+                        .clickable {
+                            onClick(pokemon?.id ?: 0)
+                        }
+                ) {
+                    Box(
                         modifier = Modifier
-                            .height(150.dp)
-                            .clickable {
-                                onClick(pokemon.id)
-                            }
+                            .fillMaxSize()
+                            .padding(16.dp)
                     ) {
-                        Box(
+                        Column(
+                            verticalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
+                                .fillMaxHeight()
+                                .align(Alignment.TopStart)
                         ) {
-                            Column(
-                                verticalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .align(Alignment.TopStart)
-                            ) {
-                                Text(
-                                    text = pokemon.nameForList.replaceFirstChar { it.uppercase() },
-                                    fontWeight = FontWeight.Bold,
-                                    color = almostWhite
-                                )
-                                Text(
-                                    text = "#${pokemon.idForList}",
-                                    fontWeight = FontWeight.Bold,
-                                    color = almostWhite
-                                )
-                            }
-                            Image(
-                                painter = painterResource(id = R.drawable.pokeball_png),
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(pokemon.colorsForList.first()),
-                                modifier = Modifier
-                                    .size(200.dp)
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = 50.dp, y = 20.dp)
+                            Text(
+                                text = pokemon?.nameForList?.replaceFirstChar { it.uppercase() } ?: "",
+                                fontWeight = FontWeight.Bold,
+                                color = almostWhite
                             )
-                            SubcomposeAsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(pokemon.spriteForList)
-                                    .scale(Scale.FIT)
-                                    .build(),
-                                contentDescription = null,
-                                loading = {
-                                    CircularProgressIndicator()
-                                },
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = 10.dp, y = 10.dp)
+                            Text(
+                                text = "#${pokemon?.idForList ?: "000"}",
+                                fontWeight = FontWeight.Bold,
+                                color = almostWhite
                             )
+                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.pokeball_png),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(pokemon?.colorsForList?.first() ?: Color.LightGray),
+                            modifier = Modifier
+                                .size(200.dp)
+                                .align(Alignment.BottomEnd)
+                                .offset(x = 50.dp, y = 20.dp)
+                        )
+                        SubcomposeAsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(pokemon?.spriteForList ?: "")
+                                .scale(Scale.FIT)
+                                .build(),
+                            contentDescription = null,
+                            loading = {
+                                CircularProgressIndicator()
+                            },
+                            modifier = Modifier
+                                .size(100.dp)
+                                .align(Alignment.BottomEnd)
+                                .offset(x = 10.dp, y = 10.dp)
+                        )
+                    }
+                }
+            }
+            when (val state = pokemons.loadState.refresh) {
+                is LoadState.Error -> {
+
+                }
+                is LoadState.Loading -> {
+                    item {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillParentMaxSize()
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
                         }
                     }
                 }
+                else -> {}
+            }
+
+            when (val state = pokemons.loadState.append) {
+                is LoadState.Error -> {
+
+                }
+                is LoadState.Loading -> {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                        }
+                    }
+                }
+                else -> {}
             }
         }
     }

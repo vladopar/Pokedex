@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
+            val pokemonListViewModel: PokemonListViewModel by viewModels()
 
             PokedexTheme {
                 // A surface container using the 'background' color from the theme
@@ -38,9 +39,8 @@ class MainActivity : ComponentActivity() {
                         startDestination = "list"
                     ) {
                         composable("list") {
-                            val viewModel: PokemonListViewModel by viewModels()
                             PokemonListScreen(
-                                viewModel = viewModel,
+                                viewModel = pokemonListViewModel,
                                 onClick = {
                                     navController.navigate("detail/$it")
                                 }

@@ -17,7 +17,7 @@ interface PokemonApi {
 
     @GET(END_POINT)
     suspend fun getPokemons(
-        @Query("limit") limit: Int,
+        @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int
     ): PokemonListDto
 
