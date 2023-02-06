@@ -29,6 +29,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +52,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.parizek.myapplication.R
 import com.parizek.myapplication.domain.model.PokemonListData
 import com.parizek.myapplication.ui.theme.almostWhite
+import kotlinx.coroutines.launch
 
 @Composable
 fun PokemonListScreen(
@@ -67,6 +69,8 @@ fun PokemonListScreen(
     val systemUiController = rememberSystemUiController()
 
     val listState = viewModel.listState
+
+    val scope = rememberCoroutineScope()
 
     SideEffect {
         systemUiController.setStatusBarColor(
@@ -86,70 +90,74 @@ fun PokemonListScreen(
 //                verticalArrangement = Arrangement.spacedBy(12.dp),
 //                horizontalArrangement = Arrangement.spacedBy(12.dp),
 //                modifier = Modifier
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            state = listState
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            state = listState,
+
         ) {
             items(
-                items = pokemons,
-                key = {it.id}
-            ) { pokemon ->
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = pokemon?.colorsForList?.last() ?: Color.White
-                    ),
-                    modifier = Modifier
-                        .height(150.dp)
-                        .clickable {
-                            onClick(pokemon?.id ?: 0)
-                        }
-                ) {
-                    Box(
+                pokemons.itemCount,
+            ) { index ->
+                pokemons[index].let { pokemon ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = pokemon?.colorsForList?.last() ?: Color.White
+                        ),
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
+                            .height(150.dp)
+                            .clickable {
+                                onClick(pokemon?.id ?: 0)
+                            }
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.SpaceBetween,
+                        Box(
                             modifier = Modifier
-                                .fillMaxHeight()
-                                .align(Alignment.TopStart)
+                                .fillMaxSize()
+                                .padding(16.dp)
                         ) {
-                            Text(
-                                text = pokemon?.nameForList?.replaceFirstChar { it.uppercase() } ?: "",
-                                fontWeight = FontWeight.Bold,
-                                color = almostWhite
+                            Column(
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .align(Alignment.TopStart)
+                            ) {
+                                Text(
+                                    text = pokemon?.nameForList?.replaceFirstChar { it.uppercase() } ?: "",
+                                    fontWeight = FontWeight.Bold,
+                                    color = almostWhite
+                                )
+                                Text(
+                                    text = "#${pokemon?.idForList ?: "000"}",
+                                    fontWeight = FontWeight.Bold,
+                                    color = almostWhite
+                                )
+                            }
+                            Image(
+                                painter = painterResource(id = R.drawable.pokeball_png),
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(pokemon?.colorsForList?.first() ?: Color.LightGray),
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = 50.dp, y = 20.dp)
                             )
-                            Text(
-                                text = "#${pokemon?.idForList ?: "000"}",
-                                fontWeight = FontWeight.Bold,
-                                color = almostWhite
+                            SubcomposeAsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(pokemon?.spriteForList ?: "")
+                                    .scale(Scale.FIT)
+                                    .build(),
+                                contentDescription = null,
+                                loading = {
+                                    CircularProgressIndicator()
+                                },
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = 10.dp, y = 10.dp)
                             )
                         }
-                        Image(
-                            painter = painterResource(id = R.drawable.pokeball_png),
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(pokemon?.colorsForList?.first() ?: Color.LightGray),
-                            modifier = Modifier
-                                .size(200.dp)
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 50.dp, y = 20.dp)
-                        )
-                        SubcomposeAsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(pokemon?.spriteForList ?: "")
-                                .scale(Scale.FIT)
-                                .build(),
-                            contentDescription = null,
-                            loading = {
-                                CircularProgressIndicator()
-                            },
-                            modifier = Modifier
-                                .size(100.dp)
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 10.dp, y = 10.dp)
-                        )
                     }
                 }
             }
@@ -158,15 +166,15 @@ fun PokemonListScreen(
 
                 }
                 is LoadState.Loading -> {
-                    item {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillParentMaxSize()
-                        ) {
-                            CircularProgressIndicator(color = Color.Black)
-                        }
-                    }
+//                    item {
+//                        Column(
+//                            horizontalAlignment = Alignment.CenterHorizontally,
+//                            verticalArrangement = Arrangement.Center,
+//                            modifier = Modifier.fillParentMaxSize()
+//                        ) {
+//                            CircularProgressIndicator(color = Color.Black)
+//                        }
+//                    }
                 }
                 else -> {}
             }
@@ -176,16 +184,16 @@ fun PokemonListScreen(
 
                 }
                 is LoadState.Loading -> {
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(color = Color.Black)
-                        }
-                    }
+//                    item {
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth(),
+//                            horizontalAlignment = Alignment.CenterHorizontally,
+//                            verticalArrangement = Arrangement.Center
+//                        ) {
+//                            CircularProgressIndicator(color = Color.Black)
+//                        }
+//                    }
                 }
                 else -> {}
             }

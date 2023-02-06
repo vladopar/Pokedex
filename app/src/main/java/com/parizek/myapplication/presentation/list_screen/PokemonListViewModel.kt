@@ -1,6 +1,7 @@
 package com.parizek.myapplication.presentation.list_screen
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +31,7 @@ class PokemonListViewModel @Inject constructor(
     var pokemonList by mutableStateOf<List<PokemonListData>>(listOf())
     var endReached by mutableStateOf(false)
     var isLoading by mutableStateOf(false)
-    val listState = LazyListState()
+    val listState = LazyGridState()
 
     var currentPage = 0
     val pageSize = 20

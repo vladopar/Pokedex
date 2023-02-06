@@ -105,23 +105,23 @@ fun PokemonDetailScreen(
 
     val imageLocation by animateOffsetAsState(
         targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, 1000f),
-        animationSpec = tween(1000, easing = FastOutSlowInEasing)
+        animationSpec = tween(700, easing = FastOutSlowInEasing)
     )
     val cardLocation by animateOffsetAsState(
         targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, 1000f),
-        animationSpec = tween(1000, easing = FastOutSlowInEasing)
+        animationSpec = tween(700, easing = FastOutSlowInEasing)
     )
     val mainInfoLocation by animateOffsetAsState(
         targetValue = if (isContentVisibleOnEnter) Offset(0F, 0F) else Offset(0f, -500f),
-        animationSpec = tween(1000, easing = FastOutSlowInEasing)
+        animationSpec = tween(700, easing = FastOutSlowInEasing)
     )
     val darkBackgroundColor by animateColorAsState(
         targetValue = state.pokemon?.colors?.last() ?: Color.DarkGray,
-        animationSpec = tween(1000, 0, LinearEasing)
+        animationSpec = tween(700, 0, LinearEasing)
     )
     val lightBackgroundColor by animateColorAsState(
         targetValue = state.pokemon?.colors?.first() ?: Color.LightGray,
-        animationSpec = tween(1000, 0, LinearEasing)
+        animationSpec = tween(700, 0, LinearEasing)
     )
 
     val width = LocalConfiguration.current.screenWidthDp
