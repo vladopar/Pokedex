@@ -62,10 +62,6 @@ fun PokemonListScreen(
 
     val pokemons = viewModel.getPokemonListPaginated().collectAsLazyPagingItems()
 
-    val pokemonList = viewModel.pokemonList
-    val endReached = viewModel.endReached
-    val isLoading = viewModel.isLoading
-
     val systemUiController = rememberSystemUiController()
 
     val listState = viewModel.listState
@@ -84,12 +80,6 @@ fun PokemonListScreen(
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-//            LazyVerticalGrid(
-//                columns = GridCells.Fixed(2),
-//                contentPadding = PaddingValues(16.dp),
-//                verticalArrangement = Arrangement.spacedBy(12.dp),
-//                horizontalArrangement = Arrangement.spacedBy(12.dp),
-//                modifier = Modifier
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(16.dp),

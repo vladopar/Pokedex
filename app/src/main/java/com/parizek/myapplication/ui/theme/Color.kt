@@ -12,8 +12,6 @@ val Pink40 = Color(0xFF7D5260)
 
 val almostWhite = Color(0xFFf5f5f5)
 
-//val grassDark = Color(0xFF42f5b0)
-//val grassLight = Color(0xFF91f2cd)
 
 val grassDark = Color(0xFF78c850)
 val grassLight = Color(0xFFa7db8d)

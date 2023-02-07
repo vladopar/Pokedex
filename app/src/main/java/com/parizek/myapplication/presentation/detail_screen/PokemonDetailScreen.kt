@@ -233,7 +233,7 @@ fun PokemonDetailScreen(
                     slideInVertically { -it } + fadeIn() with
                             slideOutVertically { it } + fadeOut()
                 }
-            ) {
+            ) { pokemon ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,13 +246,13 @@ fun PokemonDetailScreen(
                             .padding(top = 32.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
                     ) {
                         Text(
-                            text = "${state.pokemon?.name}",
+                            text = "${pokemon?.name}",
                             color = almostWhite,
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "#${state.pokemon?.idString}",
+                            text = "#${pokemon?.idString}",
                             color = almostWhite,
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
@@ -263,14 +263,14 @@ fun PokemonDetailScreen(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(state.pokemon?.types ?: emptyList()) { type ->
+                        items(pokemon?.types ?: emptyList()) { type ->
                             Text(
                                 text = type.second,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = almostWhite,
                                 modifier = Modifier
                                     .background(
-                                        color = state.pokemon?.colors?.first() ?: grassLight,
+                                        color = pokemon?.colors?.first() ?: grassLight,
                                         shape = RoundedCornerShape(100)
                                     )
                                     .padding(horizontal = 8.dp, vertical = 4.dp)

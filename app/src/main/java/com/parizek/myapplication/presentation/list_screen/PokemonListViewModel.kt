@@ -28,44 +28,7 @@ class PokemonListViewModel @Inject constructor(
     private val repo: PokemonRepository
 ) : ViewModel() {
 
-    var pokemonList by mutableStateOf<List<PokemonListData>>(listOf())
-    var endReached by mutableStateOf(false)
-    var isLoading by mutableStateOf(false)
     val listState = LazyGridState()
 
-    var currentPage = 0
-    val pageSize = 20
-
-
-    init {
-//            getPokemonList(pageSize, currentPage * pageSize)
-    }
-
     fun getPokemonListPaginated(): Flow<PagingData<PokemonListData>> = repo.getPokemonList().cachedIn(viewModelScope)
-
-
-//    fun getPokemonList(limit: Int = pageSize, offset: Int = currentPage * pageSize) {
-//        viewModelScope.launch {
-//            isLoading = true
-//            when (val result = repo.getPokemonList(limit, offset)) {
-//                is Resource.Success -> {
-//                    endReached = currentPage * pageSize >= 131
-//                    result.data?.let { list ->
-//                        pokemonList += list
-//                    }
-//                    currentPage++
-//                    isLoading = false
-//                }
-//
-//                is Resource.Loading -> {
-//
-//                }
-//
-//                is Resource.Error -> {
-//
-//                }
-//            }
-//        }
-//    }
-
 }
