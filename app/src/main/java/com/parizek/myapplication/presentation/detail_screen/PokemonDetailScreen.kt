@@ -180,17 +180,17 @@ fun PokemonDetailScreen(
         swipeVisibility = false
         when (swipeableState.currentValue) {
             "B" -> {
-                swipeableState.animateTo("C")
+                swipeableState.snapTo("C")
             }
 
             "C" -> {
-                swipeableState.animateTo("B")
+                swipeableState.snapTo("B")
             }
         }
         swipeVisibility = true
         swipeableState.animateTo(
             targetValue = "A",
-            anim = tween(500, 100, LinearOutSlowInEasing)
+            anim = tween(220, 90, LinearOutSlowInEasing)
         )
     }
 

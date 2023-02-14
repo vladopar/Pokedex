@@ -156,15 +156,15 @@ fun PokemonListScreen(
 
                 }
                 is LoadState.Loading -> {
-//                    item {
-//                        Column(
-//                            horizontalAlignment = Alignment.CenterHorizontally,
-//                            verticalArrangement = Arrangement.Center,
-//                            modifier = Modifier.fillParentMaxSize()
-//                        ) {
-//                            CircularProgressIndicator(color = Color.Black)
-//                        }
-//                    }
+                    item {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                        }
+                    }
                 }
                 else -> {}
             }
@@ -174,16 +174,16 @@ fun PokemonListScreen(
 
                 }
                 is LoadState.Loading -> {
-//                    item {
-//                        Column(
-//                            modifier = Modifier
-//                                .fillMaxWidth(),
-//                            horizontalAlignment = Alignment.CenterHorizontally,
-//                            verticalArrangement = Arrangement.Center
-//                        ) {
-//                            CircularProgressIndicator(color = Color.Black)
-//                        }
-//                    }
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                        }
+                    }
                 }
                 else -> {}
             }

@@ -108,7 +108,7 @@ fun DetailCard(
                     var statChange by remember { mutableStateOf(false) }
                     val statValue by animateDpAsState(
                         targetValue = (if (statChange) stats.first.dp else 0.dp),
-                        animationSpec = tween(800, if(isLoadedFromMainScreen) 600 else 0, FastOutSlowInEasing)
+                        animationSpec = tween(220, if(isLoadedFromMainScreen) 600 else 0, FastOutSlowInEasing)
                     )
 
                     LaunchedEffect(key1 = true) {
@@ -132,7 +132,7 @@ fun DetailCard(
                             modifier = Modifier.weight(0.2f)
                         ) {
                             Text(
-                                text = stats.first.toString(),
+                                text = it.toString(),
                                 color = Color.Black,
                                 modifier = Modifier.weight(0.2f)
                             )
